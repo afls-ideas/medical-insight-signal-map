@@ -1,0 +1,315 @@
+<template>
+    <div class="slds-p-around_medium">
+        <!-- Loading spinner -->
+        <template if:true={isLoading}>
+            <lightning-spinner alternative-text="Loading insight data..." size="medium"></lightning-spinner>
+        </template>
+        
+        <!-- Error message -->
+        <template if:true={error}>
+            <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+                <span class="slds-assistive-text">error</span>
+                <h2>{error}</h2>
+            </div>
+        </template>
+        
+        <!-- Main content -->
+        <template if:false={isLoading}>
+            <div class="main-container">
+                <!-- Left side - Themes List -->
+                <div class="themes-panel">
+                    <div class="panel-header">
+                        <h3 class="slds-text-heading_small">Themes</h3>
+                    </div>
+                    <div class="themes-list">
+                        <template for:each={availableThemes} for:item="theme">
+                            <div key={theme.id} class={theme.cssClass} onclick={handleThemeListClick} data-theme-id={theme.id}>
+                                {theme.displayLabel}
+                            </div>
+                        </template>
+                    </div>
+                </div>
+                
+                <!-- Center - Graph -->
+                <div class="graph-section">
+                    <div class="controls slds-m-bottom_medium">
+                        <lightning-button-group>
+                            <lightning-button 
+                                label="All Insights" 
+                                variant={allInsightsVariant}
+                                onclick={handleAllInsights}>
+                            </lightning-button>
+                            <lightning-button 
+                                label="Positive" 
+                                variant={positiveVariant}
+                                onclick={handlePositiveFilter}>
+                            </lightning-button>
+                            <lightning-button 
+                                label="Neutral" 
+                                variant={neutralVariant}
+                                onclick={handleNeutralFilter}>
+                            </lightning-button>
+                            <lightning-button 
+                                label="Negative" 
+                                variant={negativeVariant}
+                                onclick={handleNegativeFilter}>
+                            </lightning-button>
+                        </lightning-button-group>
+                    </div>
+                    
+                    <div class="graph-wrapper">
+                        <svg lwc:dom="manual" class="insight-graph"></svg>
+                        <div class="zoom-controls">
+                            <lightning-button-icon
+                                icon-name="utility:zoom_in"
+                                variant="border-filled"
+                                alternative-text="Zoom In"
+                                title="Zoom In"
+                                onclick={handleZoomIn}>
+                            </lightning-button-icon>
+                            <lightning-button-icon
+                                icon-name="utility:zoom_out"
+                                variant="border-filled"
+                                alternative-text="Zoom Out"
+                                title="Zoom Out"
+                                onclick={handleZoomOut}>
+                            </lightning-button-icon>
+                        </div>
+                    </div>
+                    
+                    <!-- Legend -->
+                    <div class="legend slds-m-top_medium">
+                        <div class="legend-item">
+                            <div class="legend-node hcp-node"></div>
+                            <span>HCP (with initials)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-node link-node"></div>
+                            <span>Shared Themes</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right side - Insights Panel -->
+                <div class="insights-panel">
+                    <div class="panel-header">
+                        <h3 class="slds-text-heading_small">
+                            <template if:true={selectedLink}>
+                                Connection Details
+                            </template>
+                            <template if:false={selectedLink}>
+                                <template if:true={selectedNode}>
+                                    <template if:false={selectedTheme}>
+                                        {selectedNode.label}
+                                    </template>
+                                    <template if:true={selectedTheme}>
+                                        {selectedTheme.label}
+                                    </template>
+                                </template>
+                                <template if:false={selectedNode}>
+                                    Insights Overview
+                                </template>
+                            </template>
+                        </h3>
+                    </div>
+                    
+                    <!-- Selected Link Details -->
+                    <template if:true={selectedLink}>
+                        <div class="link-details slds-m-bottom_medium">
+                            <div class="slds-text-title slds-m-bottom_small">Connected HCPs</div>
+                            <div class="slds-text-body_regular">
+                                <template for:each={sharedThemes} for:item="theme" for:index="index">
+                                    <template if:true={index.first}>
+                                        {theme.sourceHCP} ↔ {theme.targetHCP}
+                                    </template>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    
+                    <!-- Selected Node Details -->
+                    <template if:true={selectedNode}>
+                        <template if:false={selectedTheme}>
+                            <template if:false={selectedLink}>
+                                <div class="node-details slds-m-bottom_medium">
+                                    <div class="slds-grid slds-gutters">
+                                        <div class="slds-col">
+                                            <div class="slds-text-title">Type</div>
+                                            <div class="slds-text-body_regular">{selectedNode.type}</div>
+                                        </div>
+                                        <div class="slds-col">
+                                            <div class="slds-text-title">Insights</div>
+                                            <div class="slds-text-body_regular">{selectedNode.insightCount}</div>
+                                        </div>
+                                        <div class="slds-col">
+                                            <div class="slds-text-title">Sentiment</div>
+                                            <div class={sentimentPillClass}>
+                                                {debugSelectedNode.sentiment}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <template if:true={selectedNode.summaries}>
+                                        <div class="slds-m-top_small">
+                                            <div class="slds-text-title">Medical Insights</div>
+                                            <ul class="slds-list_dotted slds-m-top_x-small">
+                                                <template for:each={selectedNode.summaries} for:item="summary" for:index="index">
+                                                    <li key={summary} class="slds-text-body_regular slds-m-bottom_x-small">
+                                                        {summary}
+                                                    </li>
+                                                </template>
+                                            </ul>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                    </template>
+                    
+                    <!-- Shared Themes (when link is selected) -->
+                    <template if:true={selectedLink}>
+                        <div class="shared-themes slds-m-top_medium">
+                            <h4 class="slds-text-heading_small slds-m-bottom_small">
+                                Shared Themes ({sharedThemes.length})
+                            </h4>
+                            <template for:each={sharedThemes} for:item="theme">
+                                <div key={theme.id} class="theme-item">
+                                    <div class="theme-header">
+                                        <span class="theme-name">{theme.label}</span>
+                                        <span class="theme-count">({theme.insightCount})</span>
+                                    </div>
+                                    <div class="theme-hcps">
+                                        <div class="hcp-sentiment-row">
+                                            <span class="hcp-name">{theme.sourceHCP}</span>
+                                            <div class="hcp-sentiment-pill" data-sentiment={theme.sourceSentimentClass}>{theme.sourceSentiment}</div>
+                                        </div>
+                                        <div class="hcp-sentiment-row">
+                                            <span class="hcp-name">{theme.targetHCP}</span>
+                                            <div class="hcp-sentiment-pill" data-sentiment={theme.targetSentimentClass}>{theme.targetSentiment}</div>
+                                        </div>
+                                    </div>
+                                    <div class="theme-actions slds-m-top_small">
+                                        <lightning-button 
+                                            label="Details" 
+                                            variant="neutral" 
+                                            size="small"
+                                            onclick={handleThemeDetailsClick} 
+                                            data-theme-id={theme.id}>
+                                        </lightning-button>
+                                    </div>
+                                    <!-- Theme Details Text Box -->
+                                    <template if:true={theme.showDetails}>
+                                        <div class="theme-details-box slds-m-top_small">
+                                            <div class="slds-text-title slds-m-bottom_x-small">Theme Details:</div>
+                                            <div class="theme-details-content">{theme.detailsText}</div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    
+                    <!-- Themes List - Only show when no theme is selected -->
+                    <template if:true={selectedNode}>
+                        <template if:false={selectedTheme}>
+                            <template if:false={selectedLink}>
+                                <div class="themes-section">
+                                    <h4 class="slds-text-heading_small slds-m-bottom_small">
+                                        {selectedNode.label}'s Themes
+                                    </h4>
+                                    <template for:each={themes} for:item="theme">
+                                        <div key={theme.id} class="theme-item" onclick={handleThemeClick} data-theme-id={theme.id}>
+                                            <div class="theme-header">
+                                                <span class="theme-name">{theme.label}</span>
+                                                <span class="theme-count">({theme.insightCount})</span>
+                                            </div>
+                                            <div class="theme-sentiment-pill" data-sentiment={theme.sentimentClass}>{theme.sentiment}</div>
+                                            <div class="theme-actions slds-m-top_small">
+                                                <lightning-button 
+                                                    label="Details" 
+                                                    variant="neutral" 
+                                                    size="small"
+                                                    onclick={handleThemeDetailsClick} 
+                                                    data-theme-id={theme.id}>
+                                                </lightning-button>
+                                            </div>
+                                            <!-- Theme Details Text Box -->
+                                            <template if:true={theme.showDetails}>
+                                                <div class="theme-details-box slds-m-top_small">
+                                                    <div class="slds-text-title slds-m-bottom_x-small">Theme Details:</div>
+                                                    <div class="theme-details-content">{theme.detailsText}</div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                    </template>
+                    
+                    <!-- Related HCPs (when theme is selected) -->
+                    <template if:true={selectedTheme}>
+                        <div class="related-hcps slds-m-top_medium">
+                            <h4 class="slds-text-heading_small slds-m-bottom_small">
+                                HCPs with {selectedTheme.label} Concerns
+                            </h4>
+                            <template for:each={relatedHCPs} for:item="hcp">
+                                <div key={hcp.id} class="hcp-item" onclick={handleHCPClick} data-hcp-id={hcp.id}>
+                                    <div class="hcp-name">{hcp.label}</div>
+                                    <div class="hcp-sentiment-pill" data-sentiment={hcp.sentimentClass}>{hcp.sentiment}</div>
+                                    <template if:true={hcp.summaries}>
+                                        <div class="hcp-summary">
+                                            <template for:each={hcp.summaries} for:item="summary" for:index="index">
+                                                <div key={summary} class="slds-text-body_small slds-m-bottom_x-small">
+                                                    • {summary}
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                    
+                    <!-- Insights Overview - Show when no specific selection -->
+                    <template if:false={selectedNode}>
+                        <template if:false={selectedLink}>
+                            <template if:false={selectedThemeFromList}>
+                                <div class="overview-section">
+                                    <div class="slds-text-title slds-m-bottom_small">Overview</div>
+                                    <div class="slds-text-body_regular">
+                                        Click on a theme from the left panel to see HCPs with insights on that topic.
+                                    </div>
+                                </div>
+                            </template>
+                            <template if:true={selectedThemeFromList}>
+                                <div class="theme-overview-section">
+                                    <div class="slds-text-title slds-m-bottom_small">
+                                        HCPs with {selectedThemeFromList.label} Insights ({relatedHCPs.length})
+                                    </div>
+                                    <template for:each={relatedHCPs} for:item="hcp">
+                                        <div key={hcp.id} class="hcp-item" onclick={handleHCPClick} data-hcp-id={hcp.id}>
+                                            <div class="hcp-name">{hcp.label}</div>
+                                            <div class="hcp-sentiment-pill" data-sentiment={hcp.sentimentClass}>{hcp.sentiment}</div>
+                                            <div class="slds-text-body_small slds-m-top_x-small">
+                                                Insights: {hcp.insightCount}
+                                            </div>
+                                            <template if:true={hcp.summaries}>
+                                                <div class="hcp-summary slds-m-top_x-small">
+                                                    <template for:each={hcp.summaries} for:item="summary" for:index="index">
+                                                        <div key={summary} class="slds-text-body_small slds-m-bottom_x-small">
+                                                            • {summary}
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                    </template>
+                </div>
+            </div>
+        </template>
+    </div>
+</template> 

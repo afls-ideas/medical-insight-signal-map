@@ -1,0 +1,12 @@
+{
+    "plans": [
+        {
+            "sobject": "Medical_Insight__c",
+            "saveRefs": false,
+            "resolveRefs": false,
+            "files": [
+                "medical_insights_demo.csv"
+            ]
+        }
+    ]
+} 
