@@ -19,7 +19,7 @@
                 <!-- Left side - Themes List -->
                 <div class="themes-panel">
                     <div class="panel-header">
-                        <h3 class="slds-text-heading_small">Themes</h3>
+                        <h3 class="slds-text-heading_small">Topic Names</h3>
                     </div>
                     <div class="themes-list">
                         <template for:each={availableThemes} for:item="theme">
@@ -85,7 +85,7 @@
                         </div>
                         <div class="legend-item">
                             <div class="legend-node link-node"></div>
-                            <span>Shared Themes</span>
+                            <span>Shared Topic Names</span>
                         </div>
                     </div>
                 </div>
@@ -169,7 +169,7 @@
                     <template if:true={selectedLink}>
                         <div class="shared-themes slds-m-top_medium">
                             <h4 class="slds-text-heading_small slds-m-bottom_small">
-                                Shared Themes ({sharedThemes.length})
+                                Shared Topic Names ({sharedThemes.length})
                             </h4>
                             <template for:each={sharedThemes} for:item="theme">
                                 <div key={theme.id} class="theme-item">
@@ -199,7 +199,7 @@
                                     <!-- Theme Details Text Box -->
                                     <template if:true={theme.showDetails}>
                                         <div class="theme-details-box slds-m-top_small">
-                                            <div class="slds-text-title slds-m-bottom_x-small">Theme Details:</div>
+                                            <div class="slds-text-title slds-m-bottom_x-small">Topic Details:</div>
                                             <div class="theme-details-content">{theme.detailsText}</div>
                                         </div>
                                     </template>
@@ -207,14 +207,14 @@
                             </template>
                         </div>
                     </template>
-                    
+
                     <!-- Themes List - Only show when no theme is selected -->
                     <template if:true={selectedNode}>
                         <template if:false={selectedTheme}>
                             <template if:false={selectedLink}>
                                 <div class="themes-section">
                                     <h4 class="slds-text-heading_small slds-m-bottom_small">
-                                        {selectedNode.label}'s Themes
+                                        {selectedNode.label}'s Topic Names
                                     </h4>
                                     <template for:each={themes} for:item="theme">
                                         <div key={theme.id} class="theme-item" onclick={handleThemeClick} data-theme-id={theme.id}>
@@ -235,7 +235,7 @@
                                             <!-- Theme Details Text Box -->
                                             <template if:true={theme.showDetails}>
                                                 <div class="theme-details-box slds-m-top_small">
-                                                    <div class="slds-text-title slds-m-bottom_x-small">Theme Details:</div>
+                                                    <div class="slds-text-title slds-m-bottom_x-small">Topic Details:</div>
                                                     <div class="theme-details-content">{theme.detailsText}</div>
                                                 </div>
                                             </template>
@@ -250,7 +250,7 @@
                     <template if:true={selectedTheme}>
                         <div class="related-hcps slds-m-top_medium">
                             <h4 class="slds-text-heading_small slds-m-bottom_small">
-                                HCPs with {selectedTheme.label} Concerns
+                                HCPs with "{selectedTheme.label}" Insights
                             </h4>
                             <template for:each={relatedHCPs} for:item="hcp">
                                 <div key={hcp.id} class="hcp-item" onclick={handleHCPClick} data-hcp-id={hcp.id}>
@@ -277,7 +277,7 @@
                                 <div class="overview-section">
                                     <div class="slds-text-title slds-m-bottom_small">Overview</div>
                                     <div class="slds-text-body_regular">
-                                        Click on a theme from the left panel to see HCPs with insights on that topic.
+                                        Click on a topic name from the left panel to see HCPs with insights on that topic.
                                     </div>
                                 </div>
                             </template>

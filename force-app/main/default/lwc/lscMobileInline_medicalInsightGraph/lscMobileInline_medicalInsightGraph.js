@@ -1059,11 +1059,10 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
             } else {
                 // Combine all detail texts
                 const detailTexts = details.map(insight => {
-                    const hcpName = insight.Account__r?.Name || 'Unknown HCP';
-                    const date = insight.Date__c ? new Date(insight.Date__c).toLocaleDateString() : 'N/A';
-                    const detail = insight.Detail__c || 'No detail available';
-                    console.log('Detail for record:', {hcpName, date, detail, insight});
-                    return `HCP: ${hcpName}\nDate: ${date}\nDetail: ${detail}\n`;
+                    const date = insight.CreatedDate ? new Date(insight.CreatedDate).toLocaleDateString() : 'N/A';
+                    const detail = insight.Content || 'No detail available';
+                    const name = insight.Name || '';
+                    return `${name}\nDate: ${date}\nDetail: ${detail}\n`;
                 });
                 theme.detailsText = detailTexts.join('\n---\n');
             }
