@@ -81,7 +81,16 @@ sf project deploy start \
 
 3) Grant FLS for `Sentiment__c` (see Custom Field section above)
 
-4) Load sample data using the Apex script:
+4) Deploy the Apex class access for the Field Sales Representative profile:
+```bash
+sf project deploy start \
+  --source-dir force-app/main/default/profiles \
+  --target-org my-org
+```
+
+This grants the `Field Sales Representative` profile access to `LSC_Demo_MedicalInsightController`, which is required for field reps to use the graph and Agentforce features.
+
+5) Load sample data using the Apex script:
 ```bash
 sf apex run \
   --file scripts/apex/load_medical_insights_standard.apex \
@@ -90,7 +99,16 @@ sf apex run \
 
 > **Note:** The data loading script (`scripts/apex/load_medical_insights_standard.apex`) contains hardcoded Account IDs and Product IDs for the 260-test org. Before running against a different org, update the `hcpMap` and `immunexisId` values to match your org's records.
 
-5) Verify records:
+6) Share records with other users (e.g., field reps):
+```bash
+sf apex run \
+  --file scripts/apex/share_records_with_user.apex \
+  --target-org my-org
+```
+
+> **Note:** The script shares all `MedicalInsight` and related `Account` records with a specific user. Edit the `userId` variable in the script to target a different user. This is needed when the org's OWD for these objects is Private and records are owned by an admin.
+
+7) Verify records:
 ```bash
 sf data query \
   --query "SELECT Id, Name, Sentiment__c, TopicNames, SourceType, \
@@ -102,7 +120,7 @@ sf data query \
   --target-org my-org
 ```
 
-6) Add the component to a Lightning page:
+8) Add the component to a Lightning page:
 - App Builder → open an Account record page (recommended) or a custom Lightning page
 - Drag `lscMobileInline_medicalInsightGraph` onto the canvas
 - If placed on an Account record page, `recordId` is passed automatically and the graph will focus on that HCP; otherwise it will render the overall network
