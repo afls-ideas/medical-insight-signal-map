@@ -1,11 +1,10 @@
 import { LightningElement, api, track } from 'lwc';
-import { loadScript } from 'lightning/platformResourceLoader';
 import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getInsightNetwork from '@salesforce/apex/LSC_Demo_MedicalInsightController.getInsightNetwork';
 import getInsightsByTheme from '@salesforce/apex/LSC_Demo_MedicalInsightController.getInsightsByTheme';
 import askAgentforce from '@salesforce/apex/LSC_Demo_MedicalInsightController.askAgentforce';
-import D3 from '@salesforce/resourceUrl/d3';
+import d3 from './d3Lib';
 
 export default class MedicalInsightGraph extends NavigationMixin(LightningElement) {
     @api recordId; // Account Id for filtering
@@ -124,16 +123,8 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
         this._d3Initialized = true;
         this.isLoading = true;
 
-        loadScript(this, D3)
-            .then(() => {
-                this.initializeGraph();
-                this.loadInsightData();
-            })
-            .catch(error => {
-                this.error = 'Error loading D3.js: ' + (error.body?.message || error.message);
-                this.isLoading = false;
-                this.showToast('Error', this.error, 'error');
-            });
+        this.initializeGraph();
+        this.loadInsightData();
     }
     
     initializeGraph() {
