@@ -205,6 +205,59 @@ public with sharing class LSC_Demo_MedicalInsightController {
         return filtered;
     }
 
+    @AuraEnabled
+    public static String askAgentforce(String contextJson) {
+        try {
+            Map<String, Object> context = (Map<String, Object>) JSON.deserializeUntyped(contextJson);
+            String prompt;
+
+            Boolean isComparison = context.containsKey('name2');
+            if (isComparison) {
+                String name1 = (String) context.get('name1');
+                String name2 = (String) context.get('name2');
+                String topics = (String) context.get('topics');
+                String s1 = (String) context.get('sentiment1');
+                String s2 = (String) context.get('sentiment2');
+                String summaries1 = (String) context.get('summaries1');
+                String summaries2 = (String) context.get('summaries2');
+                prompt = 'Compare medical insights for ' + name1 + ' and ' + name2 + '. '
+                    + 'Shared topics: ' + topics + '. '
+                    + name1 + ' sentiment: ' + s1 + '. ' + name1 + ' insights: ' + summaries1 + '. '
+                    + name2 + ' sentiment: ' + s2 + '. ' + name2 + ' insights: ' + summaries2 + '. '
+                    + 'Summarize similarities and differences. Provide a recommended next step.';
+            } else {
+                String name = (String) context.get('name');
+                String topics = (String) context.get('topics');
+                String sentiment = (String) context.get('sentiment');
+                String summaries = (String) context.get('summaries');
+                prompt = 'Summarize medical insights for ' + name + '. '
+                    + 'Topics: ' + topics + '. '
+                    + 'Sentiment: ' + sentiment + '. '
+                    + 'Insights: ' + summaries + '. '
+                    + 'Provide recommended next steps.';
+            }
+
+            // Build the LLM generation request
+            ConnectApi.EinsteinLlmGenerationsInput generationsInput = new ConnectApi.EinsteinLlmGenerationsInput();
+            generationsInput.promptTextorId = prompt;
+            generationsInput.additionalConfig = new ConnectApi.EinsteinLlmAdditionalConfigInput();
+            generationsInput.additionalConfig.applicationName = 'PromptBuilderPreview';
+
+            ConnectApi.EinsteinLLMGenerationsOutput generationsOutput = ConnectApi.EinsteinLLM.generateMessages(generationsInput);
+
+            if (generationsOutput != null && generationsOutput.generations != null && !generationsOutput.generations.isEmpty()) {
+                ConnectApi.EinsteinLLMGenerationItemOutput generation = generationsOutput.generations[0];
+                return generation.text;
+            }
+
+            return 'No response generated. Please try again.';
+
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR, 'Error in askAgentforce: ' + e.getMessage() + ' at line ' + e.getLineNumber());
+            throw new AuraHandledException('Error calling Agentforce: ' + e.getMessage());
+        }
+    }
+
     @AuraEnabled(cacheable=true)
     public static List<MedicalInsight> getInsightsByHCP(Id hcpId) {
         Set<Id> insightIds = new Set<Id>();

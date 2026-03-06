@@ -539,6 +539,72 @@
     overflow-y: auto;
 }
 
+/* Structured insight details */
+.insight-section {
+    margin-bottom: 0.75rem;
+}
+
+.insight-section:last-child {
+    margin-bottom: 0;
+}
+
+.insight-section-heading {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #2e5caa;
+    padding-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 2px solid #d8dde6;
+}
+
+.insight-card {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 0.25rem;
+    padding: 0.5rem 0.625rem;
+    margin-bottom: 0.375rem;
+}
+
+.insight-card:last-child {
+    margin-bottom: 0;
+}
+
+.insight-card-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.25rem;
+}
+
+.insight-card-field {
+    font-size: 0.75rem;
+    margin-bottom: 0.25rem;
+}
+
+.insight-field-label {
+    font-weight: 600;
+    color: #706e6b;
+    margin-right: 0.25rem;
+}
+
+.insight-field-value {
+    color: #514f4d;
+}
+
+.insight-card-detail {
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: #444;
+    white-space: pre-line;
+}
+
+.insight-empty {
+    font-size: 0.8125rem;
+    color: #706e6b;
+    font-style: italic;
+    padding: 0.375rem 0;
+}
+
 /* Sentiment Pills - More specific selectors */
 .sentiment-pill,
 .theme-sentiment-pill,
@@ -612,6 +678,124 @@ div.sentiment-pill.negative {
 .hcp-sentiment-pill[data-sentiment="negative"] {
     background-color: #e91e63 !important;
     color: white !important;
+}
+
+/* Agentforce button */
+.agentforce-button {
+    width: 100%;
+}
+
+/* Agentforce modal */
+.slds-modal {
+    z-index: 9001;
+}
+
+.slds-backdrop {
+    z-index: 9000;
+}
+
+.agentforce-response {
+    padding: 0.75rem;
+    background: #f8f9fa;
+    border-radius: 0.25rem;
+    border: 1px solid #e9ecef;
+    min-height: 100px;
+}
+
+.af-heading {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1b2a4a;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.375rem;
+    border-bottom: 2px solid #d8dde6;
+}
+
+.af-subheading {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #2e5caa;
+    margin-top: 0.5rem;
+    margin-bottom: 0.375rem;
+}
+
+.af-paragraph {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #444;
+    margin: 0 0 0.375rem 0;
+}
+
+.af-list-item {
+    display: flex;
+    align-items: flex-start;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: #444;
+    margin-bottom: 0.25rem;
+    padding-left: 0.25rem;
+}
+
+.af-list-bullet {
+    flex-shrink: 0;
+    width: 1.5rem;
+    color: #706e6b;
+    font-weight: 600;
+}
+
+.af-list-content {
+    flex: 1;
+}
+
+.af-label-value {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    margin-bottom: 0.25rem;
+}
+
+.af-label {
+    font-weight: 700;
+    color: #1b2a4a;
+    margin-right: 0.125rem;
+}
+
+.af-value {
+    color: #444;
+}
+
+.af-spacer {
+    height: 0.375rem;
+}
+
+/* Icons next to names and topics */
+.hcp-name-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.theme-name-with-icon {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.hcp-icon {
+    flex-shrink: 0;
+}
+
+.hcp-icon-small {
+    flex-shrink: 0;
+}
+
+.topic-icon {
+    flex-shrink: 0;
+    --slds-c-icon-color-foreground-default: #f5a623;
+}
+
+.connection-arrow {
+    color: #706e6b;
+    font-weight: 600;
 }
 
 .zoom-controls {

@@ -186,11 +186,31 @@ sf data query \
 - **Wrong HCPs**: The data load script has hardcoded Account IDs for 260-test — update them for your org
 - **SourceType errors**: Valid values are `Visit`, `Account`, `Meeting`, `HomePage`, `MedicalInsightsTab`
 
+## Agentforce Integration
+
+The component includes an **Ask Agentforce** button that sends insight context to Einstein LLM for AI-generated analysis.
+
+- **Single HCP selected**: Summarizes the HCP's medical insights, topics, and sentiment, then recommends next steps
+- **Link selected (two HCPs)**: Compares insights across both HCPs, summarizes similarities and differences, and recommends a next step
+
+The button appears in the right panel whenever a node or link is selected. Clicking it opens a modal that displays the Agentforce response with formatted headings, labels, and structured lists.
+
+### Apex Method
+
+`LSC_Demo_MedicalInsightController.askAgentforce(String contextJson)` — accepts JSON context and calls `ConnectApi.EinsteinLLM.generateMessages()` with `applicationName = 'PromptBuilderPreview'`.
+
+### Prerequisites for Agentforce
+
+- Einstein Generative AI must be enabled in the org
+- The user must have the `Einstein Generative AI` permission set (or equivalent)
+
 ## Component Notes
 - Component: `lscMobileInline_medicalInsightGraph`
 - Uses a Static Resource `d3` (D3.js v7)
 - Positive filter highlights HCP nodes in green
 - Supports zoom/pan, sentiment filtering, and click-to-explore
+- Shared topic details show insights from both connected HCPs
+- Agentforce modal renders markdown responses with structured formatting
 
 ---
 

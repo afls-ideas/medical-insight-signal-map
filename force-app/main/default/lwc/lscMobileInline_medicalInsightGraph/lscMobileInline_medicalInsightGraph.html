@@ -113,6 +113,19 @@
                         </h3>
                     </div>
                     
+                    <!-- Ask Agentforce Button (visible when node or link is selected) -->
+                    <template if:true={showAgentforceButton}>
+                        <div class="slds-m-bottom_medium">
+                            <lightning-button
+                                label="Ask Agentforce"
+                                variant="brand"
+                                icon-name="utility:einstein"
+                                onclick={handleAskAgentforce}
+                                class="agentforce-button">
+                            </lightning-button>
+                        </div>
+                    </template>
+
                     <!-- Selected Link Details -->
                     <template if:true={selectedLink}>
                         <div class="link-details slds-m-bottom_medium">
@@ -120,7 +133,17 @@
                             <div class="slds-text-body_regular">
                                 <template for:each={sharedThemes} for:item="theme" for:index="index">
                                     <template if:true={index.first}>
-                                        {theme.sourceHCP} ↔ {theme.targetHCP}
+                                        <span key={theme.id} class="connected-hcps-line">
+                                            <span class="hcp-name-with-icon">
+                                                <lightning-icon icon-name="standard:user" size="x-small" class="hcp-icon"></lightning-icon>
+                                                {theme.sourceHCP}
+                                            </span>
+                                            <span class="connection-arrow"> ↔ </span>
+                                            <span class="hcp-name-with-icon">
+                                                <lightning-icon icon-name="standard:user" size="x-small" class="hcp-icon"></lightning-icon>
+                                                {theme.targetHCP}
+                                            </span>
+                                        </span>
                                     </template>
                                 </template>
                             </div>
@@ -174,16 +197,25 @@
                             <template for:each={sharedThemes} for:item="theme">
                                 <div key={theme.id} class="theme-item">
                                     <div class="theme-header">
-                                        <span class="theme-name">{theme.label}</span>
+                                        <span class="theme-name-with-icon">
+                                            <lightning-icon icon-name="utility:light_bulb" size="xx-small" class="topic-icon"></lightning-icon>
+                                            <span class="theme-name">{theme.label}</span>
+                                        </span>
                                         <span class="theme-count">({theme.insightCount})</span>
                                     </div>
                                     <div class="theme-hcps">
                                         <div class="hcp-sentiment-row">
-                                            <span class="hcp-name">{theme.sourceHCP}</span>
+                                            <span class="hcp-name-with-icon">
+                                                <lightning-icon icon-name="standard:user" size="xx-small" class="hcp-icon-small"></lightning-icon>
+                                                <span class="hcp-name">{theme.sourceHCP}</span>
+                                            </span>
                                             <div class="hcp-sentiment-pill" data-sentiment={theme.sourceSentimentClass}>{theme.sourceSentiment}</div>
                                         </div>
                                         <div class="hcp-sentiment-row">
-                                            <span class="hcp-name">{theme.targetHCP}</span>
+                                            <span class="hcp-name-with-icon">
+                                                <lightning-icon icon-name="standard:user" size="xx-small" class="hcp-icon-small"></lightning-icon>
+                                                <span class="hcp-name">{theme.targetHCP}</span>
+                                            </span>
                                             <div class="hcp-sentiment-pill" data-sentiment={theme.targetSentimentClass}>{theme.targetSentiment}</div>
                                         </div>
                                     </div>
@@ -199,8 +231,31 @@
                                     <!-- Theme Details Text Box -->
                                     <template if:true={theme.showDetails}>
                                         <div class="theme-details-box slds-m-top_small">
-                                            <div class="slds-text-title slds-m-bottom_x-small">Topic Details:</div>
-                                            <div class="theme-details-content">{theme.detailsText}</div>
+                                            <template if:true={theme.detailsSections}>
+                                                <template for:each={theme.detailsSections} for:item="section">
+                                                    <div key={section.key} class="insight-section">
+                                                        <template if:true={section.heading}>
+                                                            <div class="insight-section-heading">{section.heading}</div>
+                                                        </template>
+                                                        <template for:each={section.insights} for:item="insight">
+                                                            <div key={insight.key} class="insight-card">
+                                                                <div class="insight-card-name">{insight.name}</div>
+                                                                <div class="insight-card-field">
+                                                                    <span class="insight-field-label">Date:</span>
+                                                                    <span class="insight-field-value">{insight.date}</span>
+                                                                </div>
+                                                                <div class="insight-card-detail">{insight.detail}</div>
+                                                            </div>
+                                                        </template>
+                                                        <template if:true={section.empty}>
+                                                            <div class="insight-empty">{section.emptyMessage}</div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </template>
+                                            <template if:true={theme.detailsText}>
+                                                <div class="theme-details-content">{theme.detailsText}</div>
+                                            </template>
                                         </div>
                                     </template>
                                 </div>
@@ -224,19 +279,42 @@
                                             </div>
                                             <div class="theme-sentiment-pill" data-sentiment={theme.sentimentClass}>{theme.sentiment}</div>
                                             <div class="theme-actions slds-m-top_small">
-                                                <lightning-button 
-                                                    label="Details" 
-                                                    variant="neutral" 
+                                                <lightning-button
+                                                    label="Details"
+                                                    variant="neutral"
                                                     size="small"
-                                                    onclick={handleThemeDetailsClick} 
+                                                    onclick={handleThemeDetailsClick}
                                                     data-theme-id={theme.id}>
                                                 </lightning-button>
                                             </div>
                                             <!-- Theme Details Text Box -->
                                             <template if:true={theme.showDetails}>
                                                 <div class="theme-details-box slds-m-top_small">
-                                                    <div class="slds-text-title slds-m-bottom_x-small">Topic Details:</div>
-                                                    <div class="theme-details-content">{theme.detailsText}</div>
+                                                    <template if:true={theme.detailsSections}>
+                                                        <template for:each={theme.detailsSections} for:item="section">
+                                                            <div key={section.key} class="insight-section">
+                                                                <template if:true={section.heading}>
+                                                                    <div class="insight-section-heading">{section.heading}</div>
+                                                                </template>
+                                                                <template for:each={section.insights} for:item="insight">
+                                                                    <div key={insight.key} class="insight-card">
+                                                                        <div class="insight-card-name">{insight.name}</div>
+                                                                        <div class="insight-card-field">
+                                                                            <span class="insight-field-label">Date:</span>
+                                                                            <span class="insight-field-value">{insight.date}</span>
+                                                                        </div>
+                                                                        <div class="insight-card-detail">{insight.detail}</div>
+                                                                    </div>
+                                                                </template>
+                                                                <template if:true={section.empty}>
+                                                                    <div class="insight-empty">{section.emptyMessage}</div>
+                                                                </template>
+                                                            </div>
+                                                        </template>
+                                                    </template>
+                                                    <template if:true={theme.detailsText}>
+                                                        <div class="theme-details-content">{theme.detailsText}</div>
+                                                    </template>
                                                 </div>
                                             </template>
                                         </div>
@@ -310,6 +388,71 @@
                     </template>
                 </div>
             </div>
+        </template>
+
+        <!-- Agentforce Modal -->
+        <template if:true={showAgentforceModal}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="agentforce-modal-heading" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" onclick={closeAgentforceModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="small" variant="inverse"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <div class="slds-modal__header">
+                        <h2 id="agentforce-modal-heading" class="slds-modal__title slds-hyphenate">
+                            <lightning-icon icon-name="utility:einstein" size="small" class="slds-m-right_x-small"></lightning-icon>
+                            Agentforce Analysis
+                        </h2>
+                    </div>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <template if:true={agentforceLoading}>
+                            <div class="slds-align_absolute-center slds-p-around_large">
+                                <lightning-spinner alternative-text="Analyzing..." size="medium"></lightning-spinner>
+                            </div>
+                            <p class="slds-text-align_center slds-m-top_medium slds-text-color_weak">Agentforce is analyzing your insights...</p>
+                        </template>
+                        <template if:false={agentforceLoading}>
+                            <div class="agentforce-response">
+                                <template for:each={parsedAgentforceResponse} for:item="block">
+                                    <template if:true={block.isHeading}>
+                                        <div key={block.key} class="af-heading">{block.text}</div>
+                                    </template>
+                                    <template if:true={block.isSubheading}>
+                                        <div key={block.key} class="af-subheading">{block.text}</div>
+                                    </template>
+                                    <template if:true={block.isListItem}>
+                                        <div key={block.key} class="af-list-item">
+                                            <span class="af-list-bullet">{block.bullet}</span>
+                                            <span class="af-list-content">
+                                                <template if:true={block.boldPrefix}>
+                                                    <strong>{block.boldPrefix}</strong>
+                                                </template>
+                                                {block.text}
+                                            </span>
+                                        </div>
+                                    </template>
+                                    <template if:true={block.isLabelValue}>
+                                        <div key={block.key} class="af-label-value">
+                                            <span class="af-label">{block.label}</span>
+                                            <span class="af-value">{block.value}</span>
+                                        </div>
+                                    </template>
+                                    <template if:true={block.isParagraph}>
+                                        <p key={block.key} class="af-paragraph">{block.text}</p>
+                                    </template>
+                                    <template if:true={block.isSpacer}>
+                                        <div key={block.key} class="af-spacer"></div>
+                                    </template>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="slds-modal__footer">
+                        <lightning-button label="Close" onclick={closeAgentforceModal}></lightning-button>
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
         </template>
     </div>
 </template> 

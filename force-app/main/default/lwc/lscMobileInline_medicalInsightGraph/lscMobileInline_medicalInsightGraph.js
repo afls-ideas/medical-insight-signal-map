@@ -4,6 +4,7 @@ import { NavigationMixin } from 'lightning/navigation';
 import { ShowToastEvent } from 'lightning/platformShowToastEvent';
 import getInsightNetwork from '@salesforce/apex/LSC_Demo_MedicalInsightController.getInsightNetwork';
 import getInsightsByTheme from '@salesforce/apex/LSC_Demo_MedicalInsightController.getInsightsByTheme';
+import askAgentforce from '@salesforce/apex/LSC_Demo_MedicalInsightController.askAgentforce';
 import D3 from '@salesforce/resourceUrl/d3';
 
 export default class MedicalInsightGraph extends NavigationMixin(LightningElement) {
@@ -23,7 +24,12 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
     @track relatedHCPs = [];
     @track sharedThemes = [];
     @track selectedThemeFromList = null;
-    
+
+    // Agentforce modal state
+    @track showAgentforceModal = false;
+    @track agentforceResponse = '';
+    @track agentforceLoading = false;
+
     // Button variants for filtering
     @track allInsightsVariant = 'brand';
     @track positiveVariant = 'neutral';
@@ -1030,61 +1036,228 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
         }
     }
     
+    _buildInsightSection(details, hcpName, keyPrefix) {
+        if (!details || details.length === 0) {
+            return {
+                key: keyPrefix,
+                heading: hcpName,
+                insights: [],
+                empty: true,
+                emptyMessage: `No insights found for ${hcpName}.`
+            };
+        }
+        return {
+            key: keyPrefix,
+            heading: hcpName,
+            insights: details.map((insight, idx) => ({
+                key: `${keyPrefix}_${idx}`,
+                name: insight.Name || 'Untitled Insight',
+                date: insight.CreatedDate ? new Date(insight.CreatedDate).toLocaleDateString() : 'N/A',
+                detail: insight.Content || 'No detail available'
+            })),
+            empty: false
+        };
+    }
+
     async loadThemeDetailsInline(theme, isSharedTheme) {
         try {
             console.log('Loading theme details for:', theme.label);
-            
-            // Determine which accountId to use
-            let accountId;
+            theme.detailsText = null;
+            theme.detailsSections = null;
+
             if (isSharedTheme) {
-                // For shared themes, use the source HCP's accountId (first HCP in the connection)
                 const sourceNode = this.graphData.nodes.find(n => n.label === theme.sourceHCP);
-                accountId = sourceNode ? sourceNode.recordId : null;
-            } else {
-                // For regular themes, use the selected node's accountId
-                accountId = this.selectedNode ? this.selectedNode.recordId : null;
-            }
-            
-            if (!accountId) {
-                theme.detailsText = 'Unable to determine HCP for this theme.';
-                return;
-            }
-            
-            // Call Apex method to get theme details for this specific HCP
-            const details = await getInsightsByTheme({ theme: theme.label, accountId: accountId });
-            console.log('Theme details received:', details);
-            
-            if (!details || details.length === 0) {
-                theme.detailsText = 'No details found for this theme and HCP.';
-            } else {
-                // Combine all detail texts
-                const detailTexts = details.map(insight => {
-                    const date = insight.CreatedDate ? new Date(insight.CreatedDate).toLocaleDateString() : 'N/A';
-                    const detail = insight.Content || 'No detail available';
-                    const name = insight.Name || '';
-                    return `${name}\nDate: ${date}\nDetail: ${detail}\n`;
-                });
-                theme.detailsText = detailTexts.join('\n---\n');
-            }
-            
-            // Force reactive update
-            if (isSharedTheme) {
+                const targetNode = this.graphData.nodes.find(n => n.label === theme.targetHCP);
+                const sourceId = sourceNode ? sourceNode.recordId : null;
+                const targetId = targetNode ? targetNode.recordId : null;
+
+                if (!sourceId && !targetId) {
+                    theme.detailsText = 'Unable to determine HCPs for this theme.';
+                    this.sharedThemes = [...this.sharedThemes];
+                    return;
+                }
+
+                const [sourceDetails, targetDetails] = await Promise.all([
+                    sourceId ? getInsightsByTheme({ theme: theme.label, accountId: sourceId }) : Promise.resolve([]),
+                    targetId ? getInsightsByTheme({ theme: theme.label, accountId: targetId }) : Promise.resolve([])
+                ]);
+
+                theme.detailsSections = [
+                    this._buildInsightSection(sourceDetails, theme.sourceHCP, 'src'),
+                    this._buildInsightSection(targetDetails, theme.targetHCP, 'tgt')
+                ];
                 this.sharedThemes = [...this.sharedThemes];
             } else {
+                const accountId = this.selectedNode ? this.selectedNode.recordId : null;
+                if (!accountId) {
+                    theme.detailsText = 'Unable to determine HCP for this theme.';
+                    this.themes = [...this.themes];
+                    return;
+                }
+
+                const details = await getInsightsByTheme({ theme: theme.label, accountId: accountId });
+                theme.detailsSections = [
+                    this._buildInsightSection(details, this.selectedNode.label, 'single')
+                ];
                 this.themes = [...this.themes];
             }
-            
+
         } catch (error) {
             console.error('Error loading theme details:', error);
             theme.detailsText = 'Error loading theme details.';
-            
-            // Force reactive update
+            theme.detailsSections = null;
+
             if (isSharedTheme) {
                 this.sharedThemes = [...this.sharedThemes];
             } else {
                 this.themes = [...this.themes];
             }
         }
+    }
+
+    get showAgentforceButton() {
+        return this.selectedNode || this.selectedLink;
+    }
+
+    async handleAskAgentforce() {
+        let contextObj;
+
+        if (this.selectedLink && this.sharedThemes && this.sharedThemes.length > 0) {
+            // Link selected — compare two HCPs
+            const sourceNode = this.graphData.nodes.find(n => n.label === this.sharedThemes[0].sourceHCP);
+            const targetNode = this.graphData.nodes.find(n => n.label === this.sharedThemes[0].targetHCP);
+            contextObj = {
+                name1: sourceNode ? sourceNode.label : this.sharedThemes[0].sourceHCP,
+                name2: targetNode ? targetNode.label : this.sharedThemes[0].targetHCP,
+                topics: this.sharedThemes.map(t => t.label).join(', '),
+                sentiment1: sourceNode ? sourceNode.sentiment : 'Unknown',
+                sentiment2: targetNode ? targetNode.sentiment : 'Unknown',
+                summaries1: sourceNode && sourceNode.summaries ? sourceNode.summaries.join('; ') : '',
+                summaries2: targetNode && targetNode.summaries ? targetNode.summaries.join('; ') : ''
+            };
+        } else if (this.selectedNode) {
+            // Single HCP node selected
+            contextObj = {
+                name: this.selectedNode.label,
+                topics: this.selectedNode.themes ? this.selectedNode.themes.join(', ') : '',
+                sentiment: this.selectedNode.sentiment || 'Unknown',
+                summaries: this.selectedNode.summaries ? this.selectedNode.summaries.join('; ') : ''
+            };
+        } else {
+            return;
+        }
+
+        this.showAgentforceModal = true;
+        this.agentforceLoading = true;
+        this.agentforceResponse = '';
+
+        try {
+            const response = await askAgentforce({ contextJson: JSON.stringify(contextObj) });
+            this.agentforceResponse = response;
+        } catch (error) {
+            console.error('Error calling Agentforce:', error);
+            this.agentforceResponse = 'Error: ' + (error.body?.message || error.message || 'Unable to get Agentforce analysis.');
+        } finally {
+            this.agentforceLoading = false;
+        }
+    }
+
+    closeAgentforceModal() {
+        this.showAgentforceModal = false;
+        this.agentforceResponse = '';
+        this.agentforceLoading = false;
+    }
+
+    get parsedAgentforceResponse() {
+        if (!this.agentforceResponse) return [];
+        return this._parseMarkdown(this.agentforceResponse);
+    }
+
+    _stripBold(text) {
+        return text.replace(/\*\*/g, '');
+    }
+
+    _parseMarkdown(text) {
+        const lines = text.split('\n');
+        const blocks = [];
+        let idx = 0;
+
+        for (const raw of lines) {
+            const line = raw.trim();
+
+            // Empty line → spacer
+            if (!line) {
+                // Avoid consecutive spacers
+                if (blocks.length > 0 && !blocks[blocks.length - 1].isSpacer) {
+                    blocks.push({ key: `b${idx++}`, isSpacer: true });
+                }
+                continue;
+            }
+
+            // Markdown headings: ## Heading or ### Heading
+            const headingMatch = line.match(/^(#{1,3})\s+(.+)/);
+            if (headingMatch) {
+                const level = headingMatch[1].length;
+                const headingText = this._stripBold(headingMatch[2]);
+                if (level <= 2) {
+                    blocks.push({ key: `b${idx++}`, isHeading: true, text: headingText });
+                } else {
+                    blocks.push({ key: `b${idx++}`, isSubheading: true, text: headingText });
+                }
+                continue;
+            }
+
+            // Standalone bold line → treat as subheading (e.g. **Summary:**)
+            const boldLineMatch = line.match(/^\*\*(.+?)\*\*:?\s*$/);
+            if (boldLineMatch) {
+                blocks.push({ key: `b${idx++}`, isSubheading: true, text: boldLineMatch[1].replace(/:$/, '') });
+                continue;
+            }
+
+            // Numbered or bulleted list item: 1. text, - text, * text
+            const listMatch = line.match(/^(\d+[.)]\s+|- |\* )(.+)/);
+            if (listMatch) {
+                const bullet = listMatch[1].trim();
+                const content = listMatch[2];
+                // Check for bold prefix: **Label:** rest
+                const boldPrefixMatch = content.match(/^\*\*(.+?)\*\*:?\s*(.*)/);
+                if (boldPrefixMatch) {
+                    blocks.push({
+                        key: `b${idx++}`,
+                        isListItem: true,
+                        bullet,
+                        boldPrefix: boldPrefixMatch[1] + ':',
+                        text: ' ' + boldPrefixMatch[2]
+                    });
+                } else {
+                    blocks.push({
+                        key: `b${idx++}`,
+                        isListItem: true,
+                        bullet,
+                        boldPrefix: null,
+                        text: this._stripBold(content)
+                    });
+                }
+                continue;
+            }
+
+            // Label: Value pattern with bold label: **Sentiment:** Positive
+            const labelMatch = line.match(/^\*\*(.+?)\*\*:?\s+(.+)/);
+            if (labelMatch) {
+                blocks.push({
+                    key: `b${idx++}`,
+                    isLabelValue: true,
+                    label: labelMatch[1] + ':',
+                    value: ' ' + this._stripBold(labelMatch[2])
+                });
+                continue;
+            }
+
+            // Regular paragraph
+            blocks.push({ key: `b${idx++}`, isParagraph: true, text: this._stripBold(line) });
+        }
+
+        return blocks;
     }
 
     handleZoomIn() {
