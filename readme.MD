@@ -116,7 +116,20 @@ sf project deploy start \
   --target-org my-org
 ```
 
-### 6. Load sample data
+### 6. Add the Quick Action to the Person Account page layout
+
+The LWC is exposed as a Quick Action that must be added to the **Person Account** page layout (not the standard Account layout) so it renders in the AFLS iPad app.
+
+1. Go to **Setup > Object Manager > Person Account > Page Layouts**
+2. Open the Person Account page layout
+3. In the **Salesforce Mobile and Lightning Experience Actions** section, add the `Medical Insight Signal Map` quick action
+4. Save the layout
+
+![Person Account Page Layout — Quick Action](assets/person_account_page_layout_quick_action.png)
+
+> **Important:** The quick action must be on the **Person Account** layout specifically. This is what tells the mobile app to render the component for HCP records. See [Salesforce Help: Create and Add LWC Quick Action to Record Page](https://help.salesforce.com/s/articleView?id=ind.lsc_customer_engagement_create_and_add_lwc_quick_action_to_record_page.htm&type=5) for more details.
+
+### 7. Load sample data
 
 The Apex script creates 22 insights across 5 HCPs with shared-theme connections and links them to the Immunexis product:
 
@@ -128,7 +141,7 @@ sf apex run \
 
 > **Note:** The script contains hardcoded Account IDs and Product IDs for the 260-test org. Before running against a different org, update the HCP Account IDs and `immunexisId` values to match your org's records.
 
-### 7. Share records (if OWD is Private)
+### 8. Share records (if OWD is Private)
 
 If your org's OWD for `MedicalInsight` or `Account` is Private, share records with field reps:
 
@@ -140,7 +153,7 @@ sf apex run \
 
 > Edit the `userId` variable in the script to target the appropriate user.
 
-### 8. Verify the data
+### 9. Verify the data
 
 ```bash
 sf data query \
@@ -153,7 +166,7 @@ sf data query \
   --target-org my-org
 ```
 
-### 9. Add the component to a Lightning page
+### 10. Add the component to a Lightning page
 
 - **App Builder** > open an Account record page (recommended) or a custom Lightning page
 - Drag `lscMobileInline_medicalInsightGraph` onto the canvas
