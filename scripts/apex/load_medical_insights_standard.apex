@@ -1,24 +1,24 @@
 // Load Medical Insights demo data into standard MedicalInsight object
-// Maps HCP1-5 to real HCPs in Evan Casto's territory (260-test org)
+// Maps HCP1-5 to real HCP Account IDs in your org
 // Creates MedicalInsightAccount junctions, MedicalInsightProduct links,
 // and shared-theme insights that connect HCPs in the signal map
 
-// ===== HCP Account IDs (Evan Casto's territory) =====
-Id aaronId   = '001Ws00005GNtBuIAL'; // Aaron Smith
-Id abhinavId = '001Ws00005GNtBtIAL'; // Abhinav Sinha
-Id peterId   = '001Ws00005GNtBvIAL'; // Peter Neale
-Id thomasId  = '001Ws00005GNtBwIAL'; // Thomas Dorsch
-Id mangalaId = '001Ws00005GNtC0IAL'; // Mangala Yeturu
+// ===== HCP Account IDs (update these for your org) =====
+Id hcp1Id = '001Ws00005GNtBuIAL'; // HCP1
+Id hcp2Id = '001Ws00005GNtBtIAL'; // HCP2
+Id hcp3Id = '001Ws00005GNtBvIAL'; // HCP3
+Id hcp4Id = '001Ws00005GNtBwIAL'; // HCP4
+Id hcp5Id = '001Ws00005GNtC0IAL'; // HCP5
 
 Map<String, Id> hcpMap = new Map<String, Id>{
-    'HCP1' => aaronId,
-    'HCP2' => abhinavId,
-    'HCP3' => peterId,
-    'HCP4' => thomasId,
-    'HCP5' => mangalaId
+    'HCP1' => hcp1Id,
+    'HCP2' => hcp2Id,
+    'HCP3' => hcp3Id,
+    'HCP4' => hcp4Id,
+    'HCP5' => hcp5Id
 };
 
-// ===== Product: Immunexis 10mg =====
+// ===== Product: Immunexis 10mg (update for your org) =====
 Id immunexisId = '01tWs00000CabBqIAJ';
 
 // ============================================================
@@ -137,114 +137,114 @@ System.debug('Inserted ' + coreProducts.size() + ' core MedicalInsightProduct li
 // ============================================================
 List<MedicalInsight> sharedInsights = new List<MedicalInsight>();
 
-// === EFFICACY IN REFRACTORY RA — shared by Abhinav, Thomas ===
+// === EFFICACY IN REFRACTORY RA — shared by HCP2, HCP4 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Abhinav notes sustained DAS28 improvement with Immunexis in refractory RA',
+    Name = 'HCP2 notes sustained DAS28 improvement with Immunexis in refractory RA',
     Content = 'HCP reports that two refractory RA patients showed sustained DAS28 remission beyond 24 weeks on Immunexis, even after failing both JAK inhibitors and TNF agents. Describes this as the first durable response seen in these patients.',
     TopicNames = 'Efficacy in Refractory RA',
     Sentiment__c = 'Positive',
     SourceType = 'Visit'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Thomas observes functional gains in refractory RA cohort',
+    Name = 'HCP4 observes functional gains in refractory RA cohort',
     Content = 'HCP noted that refractory RA patients on Immunexis have demonstrated clinically meaningful improvements in grip strength and HAQ-DI scores. Believes the drug addresses a previously unmet need in this population.',
     TopicNames = 'Efficacy in Refractory RA',
     Sentiment__c = 'Positive',
     SourceType = 'Meeting'
 ));
 
-// === REAL-WORLD EVIDENCE — shared by Peter, Mangala ===
+// === REAL-WORLD EVIDENCE — shared by HCP3, HCP5 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Peter demands registry data before recommending Immunexis broadly',
+    Name = 'HCP3 demands registry data before recommending Immunexis broadly',
     Content = 'HCP is unwilling to prescribe Immunexis beyond trial-eligible patients until real-world registry data on 2-year outcomes are published. Expressed frustration at the gap between pivotal trial populations and his patient mix.',
     TopicNames = 'Real-World Evidence',
     Sentiment__c = 'Negative',
     SourceType = 'Visit'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Mangala calls for post-market surveillance studies',
+    Name = 'HCP5 calls for post-market surveillance studies',
     Content = 'HCP emphasized that her institution requires post-market surveillance data before formulary inclusion. She would champion Immunexis internally if real-world safety data from diverse populations were available.',
     TopicNames = 'Real-World Evidence',
     Sentiment__c = 'Neutral',
     SourceType = 'Meeting'
 ));
 
-// === EARLY INTERVENTION POTENTIAL — shared by Thomas, Mangala ===
+// === EARLY INTERVENTION POTENTIAL — shared by HCP4, HCP5 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Thomas advocates for early biologic use including Immunexis',
+    Name = 'HCP4 advocates for early biologic use including Immunexis',
     Content = 'HCP believes the treat-to-target paradigm supports earlier use of targeted therapies like Immunexis. Cited recent EULAR updates and his own clinical experience showing that early aggressive treatment prevents erosive disease.',
     TopicNames = 'Early Intervention Potential',
     Sentiment__c = 'Positive',
     SourceType = 'Visit'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Mangala questions early intervention without long-term safety data',
+    Name = 'HCP5 questions early intervention without long-term safety data',
     Content = 'HCP is interested in Immunexis for early RA but cautious about using a newer agent before conventional DMARDs have been adequately trialed. Wants to see 5-year safety data before moving Immunexis up in her treatment algorithm.',
     TopicNames = 'Early Intervention Potential',
     Sentiment__c = 'Neutral',
     SourceType = 'Meeting'
 ));
 
-// === COMPARATIVE DATA — shared by Aaron, Peter ===
+// === COMPARATIVE DATA — shared by HCP1, HCP3 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Aaron wants head-to-head data vs IL-6 inhibitors',
+    Name = 'HCP1 wants head-to-head data vs IL-6 inhibitors',
     Content = 'HCP asked specifically about comparisons between Immunexis and tocilizumab in seropositive RA. Noted that many of his patients have done well on IL-6 pathway and he needs a compelling reason to switch.',
     TopicNames = 'Comparative Data',
     Sentiment__c = 'Neutral',
     SourceType = 'Visit'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Peter skeptical without PsA comparative trial results',
+    Name = 'HCP3 skeptical without PsA comparative trial results',
     Content = 'HCP reiterated that without randomized head-to-head data against secukinumab in PsA, he cannot justify switching stable patients. Stated that anecdotal reports are insufficient for his evidence-based practice.',
     TopicNames = 'Comparative Data',
     Sentiment__c = 'Negative',
     SourceType = 'Meeting'
 ));
 
-// === QUALITY OF LIFE — shared by Aaron, Mangala ===
+// === QUALITY OF LIFE — shared by HCP1, HCP5 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Aaron reports patients highlight fatigue improvement',
+    Name = 'HCP1 reports patients highlight fatigue improvement',
     Content = 'HCP shared that multiple patients have spontaneously reported reduced fatigue and improved sleep quality since starting Immunexis. Considers patient-reported outcomes critical for treatment adherence.',
     TopicNames = 'Quality of Life',
     Sentiment__c = 'Positive',
     SourceType = 'Visit'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Mangala sees improvement in work productivity among Immunexis patients',
+    Name = 'HCP5 sees improvement in work productivity among Immunexis patients',
     Content = 'HCP noted that several patients on Immunexis have returned to full-time work or resumed daily activities they had abandoned. She views work productivity as an underutilized outcome measure.',
     TopicNames = 'Quality of Life',
     Sentiment__c = 'Positive',
     SourceType = 'Meeting'
 ));
 
-// === IMMUNOGENICITY — shared by Abhinav ===
+// === IMMUNOGENICITY — shared by HCP2 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Abhinav monitors for ADA formation in Immunexis patients',
+    Name = 'HCP2 monitors for ADA formation in Immunexis patients',
     Content = 'HCP has started routinely checking anti-drug antibody levels in patients on Immunexis after 6 months. Reports that while no clear loss of efficacy has been observed, he remains vigilant given historical precedent with other biologics.',
     TopicNames = 'Immunogenicity',
     Sentiment__c = 'Neutral',
     SourceType = 'Visit'
 ));
 
-// === MECHANISM DOUBTS — shared by Mangala ===
+// === MECHANISM DOUBTS — shared by HCP5 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Mangala questions biomarker-clinical outcome disconnect',
+    Name = 'HCP5 questions biomarker-clinical outcome disconnect',
     Content = 'HCP expressed concern that the biomarker data for Immunexis do not clearly translate to clinical endpoints. She wants mechanistic studies showing how pathway modulation leads to structural protection.',
     TopicNames = 'Mechanism Doubts',
     Sentiment__c = 'Negative',
     SourceType = 'Visit'
 ));
 
-// === MULTI-INDICATION INTEREST — shared by Thomas, Aaron ===
+// === MULTI-INDICATION INTEREST — shared by HCP4, HCP1 ===
 sharedInsights.add(new MedicalInsight(
-    Name = 'Thomas interested in Immunexis for overlap syndromes',
+    Name = 'HCP4 interested in Immunexis for overlap syndromes',
     Content = 'HCP manages several patients with RA-lupus overlap and asked whether Immunexis mechanism could address shared inflammatory pathways. He sees potential but wants pilot data before attempting off-label use.',
     TopicNames = 'Multi-Indication Interest',
     Sentiment__c = 'Positive',
     SourceType = 'Meeting'
 ));
 sharedInsights.add(new MedicalInsight(
-    Name = 'Aaron asks about Crohn\'s disease data for Immunexis',
+    Name = 'HCP1 asks about Crohn\'s disease data for Immunexis',
     Content = 'HCP co-manages patients with GI colleagues and inquired about any emerging data for Immunexis in Crohn\'s disease. He believes the mechanism could be relevant and would refer patients to trials if available.',
     TopicNames = 'Multi-Indication Interest',
     Sentiment__c = 'Neutral',
@@ -257,28 +257,28 @@ System.debug('Inserted ' + sharedInsights.size() + ' shared-theme MedicalInsight
 // ===== Shared: MedicalInsightAccount junctions =====
 List<MedicalInsightAccount> sharedJunctions = new List<MedicalInsightAccount>();
 
-// Efficacy in Refractory RA: Abhinav (idx 0), Thomas (idx 1)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[0].Id, AccountId = abhinavId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[1].Id, AccountId = thomasId));
-// Real-World Evidence: Peter (idx 2), Mangala (idx 3)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[2].Id, AccountId = peterId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[3].Id, AccountId = mangalaId));
-// Early Intervention Potential: Thomas (idx 4), Mangala (idx 5)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[4].Id, AccountId = thomasId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[5].Id, AccountId = mangalaId));
-// Comparative Data: Aaron (idx 6), Peter (idx 7)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[6].Id, AccountId = aaronId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[7].Id, AccountId = peterId));
-// Quality of Life: Aaron (idx 8), Mangala (idx 9)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[8].Id, AccountId = aaronId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[9].Id, AccountId = mangalaId));
-// Immunogenicity: Abhinav (idx 10)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[10].Id, AccountId = abhinavId));
-// Mechanism Doubts: Mangala (idx 11)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[11].Id, AccountId = mangalaId));
-// Multi-Indication Interest: Thomas (idx 12), Aaron (idx 13)
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[12].Id, AccountId = thomasId));
-sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[13].Id, AccountId = aaronId));
+// Efficacy in Refractory RA: HCP2 (idx 0), HCP4 (idx 1)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[0].Id, AccountId = hcp2Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[1].Id, AccountId = hcp4Id));
+// Real-World Evidence: HCP3 (idx 2), HCP5 (idx 3)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[2].Id, AccountId = hcp3Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[3].Id, AccountId = hcp5Id));
+// Early Intervention Potential: HCP4 (idx 4), HCP5 (idx 5)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[4].Id, AccountId = hcp4Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[5].Id, AccountId = hcp5Id));
+// Comparative Data: HCP1 (idx 6), HCP3 (idx 7)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[6].Id, AccountId = hcp1Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[7].Id, AccountId = hcp3Id));
+// Quality of Life: HCP1 (idx 8), HCP5 (idx 9)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[8].Id, AccountId = hcp1Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[9].Id, AccountId = hcp5Id));
+// Immunogenicity: HCP2 (idx 10)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[10].Id, AccountId = hcp2Id));
+// Mechanism Doubts: HCP5 (idx 11)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[11].Id, AccountId = hcp5Id));
+// Multi-Indication Interest: HCP4 (idx 12), HCP1 (idx 13)
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[12].Id, AccountId = hcp4Id));
+sharedJunctions.add(new MedicalInsightAccount(MedicalInsightId = sharedInsights[13].Id, AccountId = hcp1Id));
 
 insert sharedJunctions;
 System.debug('Inserted ' + sharedJunctions.size() + ' shared MedicalInsightAccount junctions');

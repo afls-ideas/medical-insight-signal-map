@@ -1,7 +1,7 @@
 // Share all MedicalInsight records with a specified user
 // Update the userId below to target a different user
 
-// Evan Casto
+// Update this to the target user's ID
 Id userId = '005Ws000009jh6zIAA';
 
 // 1. Share MedicalInsight records
