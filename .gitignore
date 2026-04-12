@@ -1,6 +1,13 @@
+# Hidden files
+.DS_Store
+.claude/
+
 # Bulk job result files
 *-success-records.csv
 *-failed-records.csv
+
+# Video files
+*.mov
 
 # Zip files
 *.zip

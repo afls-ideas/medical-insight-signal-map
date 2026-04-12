@@ -297,9 +297,16 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
                     .on('drag', this.dragged.bind(this))
                     .on('end', this.dragended.bind(this)));
             
+            // Scale circle radius by insight count (min 20, max 45)
+            const insightCounts = nodes.map(d => d.insightCount || 0);
+            const maxInsights = Math.max(...insightCounts, 1);
+            const radiusScale = d3.scaleLinear()
+                .domain([0, maxInsights])
+                .range([20, 45]);
+
             // Add circles
             nodeGroup.append('circle')
-                .attr('r', 25)
+                .attr('r', d => radiusScale(d.insightCount || 0))
                 .attr('fill', '#69b3a2')
                 .attr('stroke', '#fff')
                 .attr('stroke-width', 3);
@@ -325,7 +332,7 @@ export default class MedicalInsightGraph extends NavigationMixin(LightningElemen
                 .force('link', d3.forceLink(links).id(d => d.id).distance(250))
                 .force('charge', d3.forceManyBody().strength(-250))
                 .force('center', d3.forceCenter(width / 2, height / 2))
-                .force('collision', d3.forceCollide().radius(40));
+                .force('collision', d3.forceCollide().radius(d => radiusScale(d.insightCount || 0) + 10));
 
             // Update positions on simulation tick
             this.simulation.on('tick', () => {
