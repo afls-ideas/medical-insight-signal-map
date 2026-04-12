@@ -1,6 +1,6 @@
 # Medical Insight Signal Map for Agentforce Life Sciences Cloud
 
-An interactive Lightning Web Component built for the **Salesforce iPad app** that transforms Medical Insight records into a visual network, powered by **Agentforce** for AI-driven analysis. Designed for field reps who need to quickly understand HCP sentiment patterns and discover hidden connections between physicians — while on the go, with an internet connection.
+An interactive Lightning Web Component built for the **AFLS iPad app** that transforms Medical Insight records into a visual network, powered by **Agentforce** for AI-driven analysis. Designed for field reps who need to quickly understand HCP sentiment patterns and discover hidden connections between physicians — while on the go, with an internet connection.
 
 ![Medical Insight Signal Map Demo](assets/Medical_Insights_Graph_AFLS_App.gif)
 
@@ -24,7 +24,7 @@ Then, with one tap on **Ask Agentforce**, the rep gets an AI-generated compariso
 - **Shared Theme Detection** — When multiple HCPs have insights on the same topic, the graph links them visually. Tap any link to see the specific insights from both HCPs side-by-side.
 - **Agentforce AI Analysis** — Select a single HCP to get a summary of their insights and recommended actions. Select a link between two HCPs to get an AI-powered comparison of their positions, with concrete next steps.
 - **Sentiment Filtering** — Toggle Positive, Neutral, or Negative to isolate specific sentiment patterns across the network.
-- **Mobile-First for iPad** — Built as an inline LWC that works within the Salesforce mobile app on iPad with an internet connection.
+- **Mobile-First for iPad** — Built as an inline LWC that works within the AFLS iPad app with an internet connection.
 
 ## Data Model
 
@@ -64,9 +64,8 @@ erDiagram
 ## Prerequisites
 
 - Salesforce CLI installed (`sf --version`)
-- Access to a **Life Sciences Cloud org (260+)**
 - Einstein Generative AI enabled (for Agentforce features)
-- The `MedicalInsight` standard object must be available (included with LSC)
+- The `MedicalInsight` standard object must be available (included in AFLSC4CE)
 
 ## Deployment
 
@@ -167,11 +166,11 @@ The data load script creates insights across 5 HCPs in 8 therapeutic topics:
 
 | HCP | Insights |
 |---|---|
-| Aaron Smith | Efficacy in Refractory RA, Early Intervention Potential, Comparative Data, Quality of Life, Multi-Indication Interest |
-| Abhinav Sinha | Comparative Data, Real-World Evidence, Efficacy in Refractory RA, Immunogenicity |
-| Peter Neale | Mechanism Doubts, Immunogenicity, Real-World Evidence, Comparative Data |
-| Thomas Dorsch | Quality of Life, Efficacy in Refractory RA, Early Intervention Potential, Multi-Indication Interest |
-| Mangala Yeturu | Multi-Indication Interest, Real-World Evidence, Early Intervention Potential, Quality of Life, Mechanism Doubts |
+| HCP 1 | Efficacy in Refractory RA, Early Intervention Potential, Comparative Data, Quality of Life, Multi-Indication Interest |
+| HCP 2 | Comparative Data, Real-World Evidence, Efficacy in Refractory RA, Immunogenicity |
+| HCP 3 | Mechanism Doubts, Immunogenicity, Real-World Evidence, Comparative Data |
+| HCP 4 | Quality of Life, Efficacy in Refractory RA, Early Intervention Potential, Multi-Indication Interest |
+| HCP 5 | Multi-Indication Interest, Real-World Evidence, Early Intervention Potential, Quality of Life, Mechanism Doubts |
 
 All insights are linked to **Immunexis 10mg** via `MedicalInsightProduct`.
 
