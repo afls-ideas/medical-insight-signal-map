@@ -1,6 +1,7 @@
 # Hidden files
 .DS_Store
 .claude/
+.sf/
 
 # Bulk job result files
 *-success-records.csv
