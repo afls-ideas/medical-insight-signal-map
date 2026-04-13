@@ -131,15 +131,15 @@ The LWC is exposed as a Quick Action that must be added to the **Person Account*
 
 ### 7. Load sample data
 
-The Apex script creates 22 insights across 5 HCPs with shared-theme connections and links them to the Immunexis product:
+The combined Apex script creates 53 insights across 10 HCPs and 15 topics, all linked to the Immunexis product:
 
 ```bash
 sf apex run \
-  --file scripts/apex/load_medical_insights_standard.apex \
+  --file scripts/apex/load_all_demo_data_combined.apex \
   --target-org my-org
 ```
 
-> **Note:** The script contains hardcoded Account IDs and Product IDs for the 260-test org. Before running against a different org, update the HCP Account IDs and `immunexisId` values to match your org's records.
+> **Note:** The script contains hardcoded Account IDs and Product IDs. Before running against a different org, update the `hcpMap` Account IDs and `immunexisId` values to match your org's records.
 
 ### 8. Share records (if OWD is Private)
 
@@ -175,19 +175,11 @@ sf data query \
 
 ## Demo Data
 
-The data load script creates insights across 5 HCPs in 8 therapeutic topics:
+The combined data load script creates **53 insights** across **10 HCPs** and **15 topics**:
 
-| HCP | Insights |
-|---|---|
-| HCP 1 | Efficacy in Refractory RA, Early Intervention Potential, Comparative Data, Quality of Life, Multi-Indication Interest |
-| HCP 2 | Comparative Data, Real-World Evidence, Efficacy in Refractory RA, Immunogenicity |
-| HCP 3 | Mechanism Doubts, Immunogenicity, Real-World Evidence, Comparative Data |
-| HCP 4 | Quality of Life, Efficacy in Refractory RA, Early Intervention Potential, Multi-Indication Interest |
-| HCP 5 | Multi-Indication Interest, Real-World Evidence, Early Intervention Potential, Quality of Life, Mechanism Doubts |
+**Topics:** Efficacy, Safety, Real-World Evidence, Patient Outcomes, Mechanism of Action, Dosing Optimization, Combination Therapy, Biomarker Strategy, Payer Access, Patient Adherence, Pediatric Use, Treatment Sequencing, Switching Protocols, Onset of Action, Long-Term Remission
 
-All insights are linked to **Immunexis 10mg** via `MedicalInsightProduct`.
-
-Sentiments: Positive, Neutral, and Negative distributed across HCPs to demonstrate filtering.
+All insights are linked to **Immunexis 10mg** via `MedicalInsightProduct`. Sentiments (Positive, Neutral, Negative) are distributed across HCPs and topics to demonstrate filtering and cross-HCP theme connections in the graph.
 
 ## Agentforce Integration
 
